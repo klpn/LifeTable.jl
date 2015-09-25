@@ -4,9 +4,11 @@ function LifeTable(inframe, sex, intype="count")
 	if sex == 1
 		aint = 0.045
 		acoef = 2.684
+		aconst = 0.330
 	elseif sex == 2
 		aint = 0.053
 		acoef = 2.8
+		aconst = 0.350
 	end
 
 	nrows = size(inframe, 1)
@@ -20,7 +22,12 @@ function LifeTable(inframe, sex, intype="count")
 		outframe[:m] = inframe[2]
 	end
 	
-	a0 = aint + acoef * outframe[:m][1]
+	if outframe[:m][1] >= 0.107
+		a0 = aconst
+	else
+		a0 = aint + acoef * outframe[:m][1]
+	end
+
 	aend = 1 / outframe[:m][nrows]
 	aoth = fill(0.5, nrows-2)
 	aclosed = [a0, aoth]
