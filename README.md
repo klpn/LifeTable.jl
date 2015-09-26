@@ -18,7 +18,7 @@ The function returns a new DataFrame with the life table.
 | t | Remaining number of years to live at a given age.
 | e | Life expectancy at a given age.
 
-The function `CauseLife` takes two arguments: a lifetable returned by `PeriodLifeTable` and a vector of the same length as the number of rows in the life table, with the proportion of deaths at a given age caused by a specific disease (or another cause). It returns a DataFrame with the following columns:
+The function `CauseLife(lifetable, causefreq)` takes a lifetable returned by `PeriodLifeTable` and a vector of the same length as the number of rows in the life table, with the proportion of deaths at a given age caused by a specific disease (or another cause). It returns a DataFrame with the following columns:
 
 
 | Column | Description
@@ -28,3 +28,5 @@ The function `CauseLife` takes two arguments: a lifetable returned by `PeriodLif
 |f | The proportion of the population surviving to a given age that will die of the specific cause.
 
 The DataFrame returned by `CauseLife` can be used as input to `LifeTable` (with `intype="rate"`) to compute a new lifetable for the subpopulation dying of a specific cause.
+
+The function `MortSurvFit(lifetable, numbdeaths, func, functype)` fits the `m` column (if `functype="rate"`) or the `l` column (if `functype="surv"`) against the `age` column in a DataFrame returned by `LifeTable` with a Gompertz function (if `func="gompertz"`) or a two-parameter Weibull function (if `func="weibull"`). See e.g. [Juckett and Rosenberg (1993)](http://www.ncbi.nlm.nih.gov/pubmed/8377524) for a discussion of these different functions and their applications to human mortality and survival data. The columns are fitted using [LsqFit](https://github.com/JuliaOpt/LsqFit.jl), and the data points are weighted by the square root of the age-specific number of deaths (given in `numbdeaths`). All input columns are assumed to be DataArrays, and are converted to ordinary arrays in order to work with LsqFit.

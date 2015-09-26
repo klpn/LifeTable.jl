@@ -1,8 +1,8 @@
 module LifeTable
 
-using DataArrays, DataFrames
+using DataArrays, DataFrames, LsqFit
 
-export PeriodLifeTable, CauseLife
+export PeriodLifeTable, CauseLife, MortSurvFit
 
 function PeriodLifeTable(inframe, sex, intype="count")
 	if sex == 1
@@ -75,6 +75,33 @@ function CauseLife(lifetable, causefreq)
 
 	outframe = DataFrame(age = lifetable[:age], m = mcacoh, f = fca)
 	return outframe
+end
+
+function MortSurvFit(lifetable, numbdeaths, func, functype)
+	if func == "gompertz"
+		ratemodel(x, p) = p[1] * exp(p[2].*x)
+		survmodel(x, p) = exp(-(p[1]/p[2]) * (exp(p[2].*x)-1))
+		p = [exp(-18), 0.1]
+	elseif func == "weibull"
+		ratemodel(x, p) = (p[1]/p[2]) .* (x./p[2]).^(p[1]-1)
+		survmodel(x, p) = exp(-(x./p[2]).^p[1]) 
+		p = [10.0, 80.0]
+	end
+	
+	if functype == "rate"
+		ycol = lifetable[:m]
+		model = ratemodel
+	elseif functype == "surv"
+		ycol = lifetable[:l]
+		model = survmodel
+	end
+
+	xarr = convert(Array{Int}, lifetable[:age])
+	yarr = convert(Array{Float64}, ycol)
+	warr = sqrt(convert(Array{Int}, numbdeaths))
+
+	fit = curve_fit(model, xarr, yarr, warr, p)
+	return fit
 end
 
 end
