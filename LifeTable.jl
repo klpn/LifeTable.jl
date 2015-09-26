@@ -12,45 +12,47 @@ function LifeTable(inframe, sex, intype="count")
 	end
 
 	nrows = size(inframe, 1)
-	outframe = DataFrame()
-	outframe[:age] = inframe[1]
-	i = outframe[:age][2:nrows] .- outframe[:age][1:nrows-1]
+	age = inframe[1]
+	i = age[2:nrows] .- age[1:nrows-1]
 
 	if intype == "count"
-		outframe[:m] = inframe[3]./inframe[2]
+		m = inframe[3]./inframe[2]
 	elseif intype == "rate"
-		outframe[:m] = inframe[2]
+		m = inframe[2]
 	end
 	
-	if outframe[:m][1] >= 0.107
+	if m[1] >= 0.107
 		a0 = aconst
 	else
-		a0 = aint + acoef * outframe[:m][1]
+		a0 = aint + acoef * m[1]
 	end
 
-	aend = 1 / outframe[:m][nrows]
+	aend = 1 / m[nrows]
 	aoth = fill(0.5, nrows-2)
 	aclosed = [a0, aoth]
-	outframe[:a] = [aclosed, aend]
+	a = [aclosed, aend]
 	
 
 	q(m, a, i) = (i*m) / (1+(1-a)*i*m)
-	qclosed = map(q, outframe[:m][1:nrows-1], aclosed, i)
-	outframe[:q] = [qclosed, 1]
-	outframe[:p] = 1 .- outframe[:q]
+	qclosed = map(q, m[1:nrows-1], aclosed, i)
+	q = [qclosed, 1]
+	p = 1 .- q
 
-	outframe[:l] = cumprod([1, outframe[:p][1:nrows-1]])
-	dclosed = outframe[:q][1:nrows-1] .* outframe[:l][1:nrows-1]
-	outframe[:d] = [dclosed, outframe[:l][nrows]]
+	l = cumprod([1, p[1:nrows-1]])
+	dclosed = q[1:nrows-1] .* l[1:nrows-1]
+	d = [dclosed, l[nrows]]
 
 	ld(l, a, d) = l - (1-a) * d
-	ldclosed = map(ld, outframe[:l][1:nrows-1], aclosed, dclosed)
-	outframe[:ld] = [ldclosed, outframe[:l][nrows]*aend]
+	ldclosed = map(ld, l[1:nrows-1], aclosed, dclosed)
+	ld = [ldclosed, l[nrows]*aend]
 
-	revl = reverse(outframe[:ld])
+	revl = reverse(ld)
 	tclosed = reverse(cumsum(revl))[1:nrows-1]
-	outframe[:t] = [tclosed, outframe[:ld][nrows]]
-	outframe[:e] = outframe[:t]./outframe[:l]
+	t = [tclosed, ld[nrows]]
+	e = t./l
+	
+	outframe = DataFrame(age = age, m = m, a = a, q = q, p = p, l = l, d = d,
+	ld = ld, t = t, e = e)
 
 	return outframe
 
