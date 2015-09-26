@@ -1,4 +1,8 @@
+module LifeTable
+
 using DataArrays, DataFrames
+
+export LifeTable
 
 function LifeTable(inframe, sex, intype="count")
 	if sex == 1
@@ -59,5 +63,7 @@ function LifeTable(inframe, sex, intype="count")
 	ld = ld, t = t, e = e)
 
 	return outframe
+
+end
 
 end
