@@ -2,9 +2,9 @@ module LifeTable
 
 using DataArrays, DataFrames
 
-export LifeTable
+export PeriodLifeTable
 
-function LifeTable(inframe, sex, intype="count")
+function PeriodLifeTable(inframe, sex, intype="count")
 	if sex == 1
 		aint = 0.045
 		acoef = 2.684
