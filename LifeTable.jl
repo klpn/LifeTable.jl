@@ -46,8 +46,8 @@ function LifeTable(inframe, sex, intype="count")
 	dclosed = q[1:nrows-1] .* l[1:nrows-1]
 	d = [dclosed, l[nrows]]
 
-	ld(l, a, d) = l - (1-a) * d
-	ldclosed = map(ld, l[1:nrows-1], aclosed, dclosed)
+	ld(l, a, d, i) = (l - (1-a) * d) * i
+	ldclosed = map(ld, l[1:nrows-1], aclosed, dclosed, i)
 	ld = [ldclosed, l[nrows]*aend]
 
 	revl = reverse(ld)
