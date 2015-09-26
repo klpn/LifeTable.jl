@@ -2,7 +2,7 @@ module LifeTable
 
 using DataArrays, DataFrames
 
-export PeriodLifeTable
+export PeriodLifeTable, CauseLife
 
 function PeriodLifeTable(inframe, sex, intype="count")
 	if sex == 1
@@ -64,6 +64,17 @@ function PeriodLifeTable(inframe, sex, intype="count")
 
 	return outframe
 
+end
+
+function CauseLife(lifetable, causefreq)
+	dca = causefreq .* lifetable[:d]
+	l0ca = reverse(cumsum(reverse(dca)))
+	fca = l0ca ./ lifetable[:l]
+	mca = (causefreq .* lifetable[:m])
+	mcacoh = mca ./ fca
+
+	outframe = DataFrame(age = lifetable[:age], m = mcacoh, f = fca)
+	return outframe
 end
 
 end

@@ -17,3 +17,14 @@ The function returns a new DataFrame with the life table.
 | ld | Number of years lived at a given age.
 | t | Remaining number of years to live at a given age.
 | e | Life expectancy at a given age.
+
+The function `CauseLife` takes two arguments: a lifetable returned by `PeriodLifeTable` and a vector of the same length as the number of rows in the life table, with the proportion of deaths at a given age caused by a specific disease (or another cause). It returns a DataFrame with the following columns:
+
+
+| Column | Description
+| ------ | -----------
+| age | Start of age interval (same as the input life table).
+|m | Age-specific death rates normalized to the frequency of the cause of death (the next column).
+|f | The proportion of the population surviving to a given age that will die of the specific cause.
+
+The DataFrame returned by `CauseLife` can be used as input to `LifeTable` (with `intype="rate"`) to compute a new lifetable for the subpopulation dying of a specific cause.
