@@ -21,10 +21,14 @@ function LifeTable(inframe, sex, intype="count")
 		m = inframe[2]
 	end
 	
-	if m[1] >= 0.107
-		a0 = aconst
+	if age[1] == 0
+		if m[1] >= 0.107
+			a0 = aconst
+		else
+			a0 = aint + acoef * m[1]
+		end
 	else
-		a0 = aint + acoef * m[1]
+		a0 = 0.5
 	end
 
 	aend = 1 / m[nrows]
