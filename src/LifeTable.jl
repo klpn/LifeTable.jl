@@ -1,8 +1,8 @@
 module LifeTable
 
-using DataArrays, DataFrames, LsqFit
+using DataArrays, DataFrames, LsqFit, GLM 
 
-export PeriodLifeTable, CauseLife, MortSurvFit
+export PeriodLifeTable, CauseLife, MortSurvFit, MortSurvParamsFit
 
 function PeriodLifeTable(inframe, sex, intype="count")
 	if sex == 1
@@ -101,7 +101,46 @@ function MortSurvFit(lifetable, numbdeaths, func, functype)
 	warr = sqrt(convert(Array{Int}, numbdeaths))
 
 	fit = curve_fit(model, xarr, yarr, warr, p)
-	return fit
+	return ["fit" => fit, "func" => func, "functype" => functype]
+end
+
+function MortSurvParamsFit(msfits)
+	p1arr = Float64[]
+	p2arr = Float64[]
+
+	for msfit in msfits
+		push!(p1arr, msfit["fit"].param[1]) 
+		push!(p2arr, msfit["fit"].param[2])
+	end
+	
+	func = msfits[1]["func"]
+	functype = msfits[1]["functype"]
+	if func == "gompertz"
+		ratetrans_x(p1, p2) = p2
+		ratetrans_y(p1, p2) = log(p1)
+		survtrans_x(p1, p2) = p2
+		survtrans_y(p1, p2) = log(p1/p2)
+	elseif func == "weibull"
+		ratetrans_x(p1, p2) = p1 - 1
+		ratetrans_y(p1, p2) = log(p1/p2) - (p1-1) * log(p2)
+		survtrans_x(p1, p2) = p1
+		survtrans_y(p1, p2) = -p1 * log(p2) 
+	end
+	
+	if functype == "rate"
+		trans_x = ratetrans_x
+		trans_y = ratetrans_y
+	elseif functype == "surv"
+		trans_x = survtrans_x
+		trans_y = survtrans_y
+	end
+
+	xarr = map(trans_x, p1arr, p2arr)
+	yarr = map(trans_y, p1arr, p2arr)
+	trans_params = DataFrame(p1 = p1arr, p2 = p2arr, X = xarr, Y = yarr)
+	
+	fit = glm(Y~X, trans_params, Normal(), IdentityLink())
+	return ["trans_params" => trans_params, "fit" => fit]
 end
 
 end
