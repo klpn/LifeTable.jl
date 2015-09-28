@@ -4,7 +4,7 @@ using DataArrays, DataFrames, LsqFit, GLM
 
 export PeriodLifeTable, CauseLife, MortSurvFit, MortSurvParamsFit
 
-function PeriodLifeTable(inframe, sex, intype="count")
+function PeriodLifeTable(inframe, sex, openend=true, intype="count")
 	if sex == 1
 		aint = 0.045
 		acoef = 2.684
@@ -17,7 +17,14 @@ function PeriodLifeTable(inframe, sex, intype="count")
 
 	nrows = size(inframe, 1)
 	age = inframe[1]
-	i = age[2:nrows] .- age[1:nrows-1]
+
+	if openend
+		i = age[2:nrows] .- age[1:nrows-1]
+	else
+		ifirst = age[2:nrows] .- age[1:nrows-1]
+		iend = ifirst[nrows-1]
+		i = [ifirst, iend]
+	end
 
 	if intype == "count"
 		m = inframe[3]./inframe[2]
@@ -34,29 +41,39 @@ function PeriodLifeTable(inframe, sex, intype="count")
 	else
 		a0 = 0.5
 	end
-
-	aend = 1 / m[nrows]
-	aoth = fill(0.5, nrows-2)
-	aclosed = [a0, aoth]
-	a = [aclosed, aend]
 	
-
 	q(m, a, i) = (i*m) / (1+(1-a)*i*m)
-	qclosed = map(q, m[1:nrows-1], aclosed, i)
-	q = [qclosed, 1]
-	p = 1 .- q
-
-	l = cumprod([1, p[1:nrows-1]])
-	dclosed = q[1:nrows-1] .* l[1:nrows-1]
-	d = [dclosed, l[nrows]]
-
 	ld(l, a, d, i) = (l - (1-a) * d) * i
-	ldclosed = map(ld, l[1:nrows-1], aclosed, dclosed, i)
-	ld = [ldclosed, l[nrows]*aend]
 
-	revl = reverse(ld)
-	tclosed = reverse(cumsum(revl))[1:nrows-1]
-	t = [tclosed, ld[nrows]]
+	if openend
+		aend = 1 / m[nrows]
+		aoth = fill(0.5, nrows-2)
+		aclosed = [a0, aoth]
+		a = [aclosed, aend]
+		qclosed = map(q, m[1:nrows-1], aclosed, i)
+		q = [qclosed, 1]
+	else
+		aoth = fill(0.5, nrows-1)
+		a = [a0, aoth]
+		q = map(q, m, a, i)
+	end
+
+	p = 1 .- q
+	l = cumprod([1, p[1:nrows-1]])
+	d = q .* l
+
+	if openend 
+		ldclosed = map(ld, l[1:nrows-1], aclosed, d[1:nrows-1], i)
+		ld = [ldclosed, l[nrows]*aend]
+		revl = reverse(ld)
+		tclosed = reverse(cumsum(revl))[1:nrows-1]
+		t = [tclosed, ld[nrows]]
+	else
+		ld = map(ld, l, a, d, i)
+		revl = reverse(ld)
+		t = reverse(cumsum(revl))
+	end
+
 	e = t./l
 	
 	outframe = DataFrame(age = age, m = m, a = a, q = q, p = p, l = l, d = d,
