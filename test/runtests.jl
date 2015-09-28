@@ -18,7 +18,7 @@ fse5112pop3084 = readtable("data/fse5112pop3084.csv")
 fse5112leuk3084 = readtable("data/fse5112leuk3084.csv")
 
 for i in 2:63
-	dths = DataFrame(t = fse5112pop3084[1], p = fse5112pop3084[i], d = fse5112tot3084[i])
+	dths = DataFrame(age = fse5112pop3084[1], p = fse5112pop3084[i], d = fse5112tot3084[i])
 	lt = PeriodLifeTable(dths, 2, false)
 	leuk_prop = fse5112leuk3084[i] ./ fse5112tot3084[i]
 	leuk_life = CauseLife(lt, leuk_prop)
