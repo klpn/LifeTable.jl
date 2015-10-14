@@ -2,7 +2,7 @@ module LifeTable
 
 using DataArrays, DataFrames, LsqFit, GLM 
 
-export PeriodLifeTable, CauseLife, MortSurvFit, MortSurvParamsFit
+export PeriodLifeTable, CauseLife, MortSurvFit, Predict, MortSurvParamsFit
 
 function PeriodLifeTable(inframe, sex, openend=true, intype="count")
 	if sex == 1
@@ -118,8 +118,10 @@ function MortSurvFit(lifetable, numbdeaths, func, functype)
 	warr = sqrt(convert(Array{Int}, numbdeaths))
 
 	fit = curve_fit(model, xarr, yarr, warr, p)
-	return ["fit" => fit, "func" => func, "functype" => functype]
+	return ["fit" => fit, "func" => func, "functype" => functype, "model" => model]
 end
+
+Predict(x, msfit) = msfit["model"](x, msfit["fit"].param)
 
 function MortSurvParamsFit(msfits)
 	p1arr = Float64[]
