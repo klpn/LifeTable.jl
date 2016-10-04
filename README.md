@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/klpn/LifeTable.jl.svg?branch=master)](https://travis-ci.org/klpn/LifeTable.jl)
 
-[![LifeTable](http://pkg.julialang.org/badges/LifeTable_0.3.svg)](http://pkg.julialang.org/?pkg=LifeTable) [![LifeTable](http://pkg.julialang.org/badges/LifeTable_0.4.svg)](http://pkg.julialang.org/?pkg=LifeTable)
+[![LifeTable](http://pkg.julialang.org/badges/LifeTable_0.4.svg)](http://pkg.julialang.org/?pkg=LifeTable) [![LifeTable](http://pkg.julialang.org/badges/LifeTable_0.5.svg)](http://pkg.julialang.org/?pkg=LifeTable)
 
 The `LifeTable` module contains the function `PeriodLifeTable`, which can be used to calculate life tables in accordance with the methods used by [Human Mortality Database](http://www.mortality.org/) (in particular, see the [Methods Protocol](http://www.mortality.org/Public/Docs/MethodsProtocol.pdf) 38--39). The function is called like `PeriodLifeTable(inframe, sex, openend, intype)`, where `inframe` is a [DataFrame](https://github.com/JuliaStats/DataFrames.jl), `sex` may be given as `1` or `2` for males or females (the calculation of average numbers lived for those dying as infants differs between the sexes), and `intype` can be `"count"` (the default) or `"rate"`.
 
