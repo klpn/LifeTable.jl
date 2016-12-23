@@ -2,9 +2,9 @@ module LifeTable
 
 using DataArrays, DataFrames, LsqFit, GLM 
 
-export PeriodLifeTable, CauseLife, MortSurvFit, Predict, MortSurvParamsFit
+export periodlifetable, causelife, mortsurvfit, predict, mortsurvparamsfit
 
-function PeriodLifeTable(inframe, sex, openend=true, intype="count")
+function periodlifetable(inframe, sex, openend=true, intype="count")
 	if sex == 1
 		aint = 0.045
 		acoef = 2.684
@@ -83,7 +83,7 @@ function PeriodLifeTable(inframe, sex, openend=true, intype="count")
 
 end
 
-function CauseLife(lifetable, causefreq)
+function causelife(lifetable, causefreq)
 	dca = causefreq .* lifetable[:d]
 	l0ca = reverse(cumsum(reverse(dca)))
 	fca = l0ca ./ lifetable[:l]
@@ -106,7 +106,7 @@ models = Dict(
 		"p" => [10.0; 80.0]),
 	)
 
-function MortSurvFit(lifetable, numbdeaths, func, functype)
+function mortsurvfit(lifetable, numbdeaths, func, functype)
 	ycols = Dict("rate" => :m, "surv" => :l)
 
 	xarr = convert(Array{Int}, lifetable[:age])
@@ -118,7 +118,7 @@ function MortSurvFit(lifetable, numbdeaths, func, functype)
 	return Dict("fit" => fit, "func" => func, "functype" => functype, "model" => model)
 end
 
-Predict(x, msfit) = msfit["model"](x, msfit["fit"].param)
+predict(x, msfit) = msfit["model"](x, msfit["fit"].param)
 
 gompratetr_x(p1, p2) = p2
 gompratetr_y(p1, p2) = log(p1) 
@@ -136,7 +136,7 @@ transmodels = Dict(
 		"surv" => [weibsurvtr_x; weibsurvtr_y]),
 	)
 	
-function MortSurvParamsFit(msfits)
+function mortsurvparamsfit(msfits)
 	p1arr = Float64[]
 	p2arr = Float64[]
 
