@@ -98,12 +98,19 @@ gomprate(x,p) = p[1] * exp(p[2].*x)
 gompsurv(x,p) = exp(-(p[1]/p[2]) * (exp(p[2].*x)-1))
 weibrate(x,p) = (p[1]/p[2]) .* (x./p[2]).^(p[1]-1)
 weibsurv(x,p) = exp(-(x./p[2]).^p[1])
+# Functions for blocks with redundant components with exponentially distributed lifespans, 
+# see Gavrilov and Gavrilova, Journal of Theoretical Biology (2001).
+gavrblrate(x,p) = (p[1]*p[2]*exp(-p[2].*x).*(1-exp(-p[2].*x)).^(p[1]-1))./
+	(1-(1-exp(-p[2].*x)).^p[1])
+gavrblsurv(x,p) = 1-(1-exp(-p[2].*x)).^p[1]
 
 models = Dict(
 	"gompertz" => Dict("rate" => gomprate, "surv" => gompsurv, 
 		"p" => [exp(-18); 0.1]),
 	"weibull" => Dict("rate" => weibrate, "surv" => weibsurv,
 		"p" => [10.0; 80.0]),
+	"gavrblock" => Dict("rate" => gavrblrate, "surv" => gavrblsurv,
+		"p" => [10.0; 0.03]),
 	)
 
 function mortsurvfit(lifetable, numbdeaths, func, functype)
@@ -155,7 +162,7 @@ function mortsurvparamsfit(msfits)
 	yarr = map(trans_y, p1arr, p2arr)
 	trans_params = DataFrame(p1 = p1arr, p2 = p2arr, X = xarr, Y = yarr)
 	
-	fit = glm(Y~X, trans_params, Normal(), IdentityLink())
+	fit = glm(@formula(Y~X), trans_params, Normal(), IdentityLink())
 	return Dict("trans_params" => trans_params, "fit" => fit)
 end
 
