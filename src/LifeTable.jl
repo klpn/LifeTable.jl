@@ -1,6 +1,6 @@
 module LifeTable
 
-using DataArrays, DataFrames, LsqFit, GLM 
+using DataFrames, LsqFit, GLM 
 
 export periodlifetable, causelife, mortsurvfit, predict, mortsurvparamsfit
 
@@ -94,15 +94,15 @@ function causelife(lifetable, causefreq)
 	return outframe
 end
 
-gomprate(x,p) = p[1] * exp(p[2].*x)
-gompsurv(x,p) = exp(-(p[1]/p[2]) * (exp(p[2].*x)-1))
+gomprate(x,p) = p[1] * exp.(p[2].*x)
+gompsurv(x,p) = exp.(-(p[1]/p[2]) .* (exp.(p[2].*x)-1))
 weibrate(x,p) = (p[1]/p[2]) .* (x./p[2]).^(p[1]-1)
-weibsurv(x,p) = exp(-(x./p[2]).^p[1])
+weibsurv(x,p) = exp.(-(x./p[2]).^p[1])
 # Functions for blocks with redundant components with exponentially distributed lifespans, 
 # see Gavrilov and Gavrilova, Journal of Theoretical Biology (2001).
-gavrblrate(x,p) = (p[1]*p[2]*exp(-p[2].*x).*(1-exp(-p[2].*x)).^(p[1]-1))./
-	(1-(1-exp(-p[2].*x)).^p[1])
-gavrblsurv(x,p) = 1-(1-exp(-p[2].*x)).^p[1]
+gavrblrate(x,p) = (p[1]*p[2]*exp.(-p[2].*x).*(1-exp.(-p[2].*x)).^(p[1]-1))./
+	(1-(1-exp.(-p[2].*x)).^p[1])
+gavrblsurv(x,p) = 1-(1-exp.(-p[2].*x)).^p[1]
 
 models = Dict(
 	"gompertz" => Dict("rate" => gomprate, "surv" => gompsurv, 
@@ -118,7 +118,7 @@ function mortsurvfit(lifetable, numbdeaths, func, functype)
 
 	xarr = convert(Array{Int}, lifetable[:age])
 	yarr = convert(Array{Float64}, lifetable[ycols[functype]])
-	warr = sqrt(convert(Array{Int}, numbdeaths))
+	warr = sqrt.(convert(Array{Int}, numbdeaths))
 	model = models[func][functype]
 
 	fit = curve_fit(model, xarr, yarr, warr, models[func]["p"])
