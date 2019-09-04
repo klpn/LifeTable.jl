@@ -1,5 +1,0 @@
-julia 0.5
-DataFrames
-CSV
-LsqFit
-GLM
