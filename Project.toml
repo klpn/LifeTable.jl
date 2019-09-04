@@ -1,6 +1,6 @@
 name = "LifeTable"
 uuid = "4210c81c-ea79-58ed-b1f5-cefccb200c31"
-version = "0.2.2"
+version = "0.2.3"
 
 [deps]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
